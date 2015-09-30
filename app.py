@@ -16,6 +16,7 @@ DB_USER = app.config['DB_USER']
 DB_PASS = app.config['DB_PASS']
 DB_NAME = app.config['DB_NAME']
 DB_PORT = app.config['DB_PORT']
+ROUTING_TABLE = app.config['ROUTING_TABLE']
 
 
 @app.route('/')
@@ -41,7 +42,7 @@ def route():
     ########################################################
     ### Find sidewalks closest to origin and destination ###
     ########################################################
-    routing_table = 'yun_sidewalks_ready_routing_vertices_pgr'
+    routing_table = ROUTING_TABLE + '_vertices_pgr'
 
     point_sql = 'ST_Setsrid(ST_Makepoint({}, {}), 4326)'
     # Note that in geoJSON, the order is [lon, lat], so reversed order here
@@ -83,18 +84,16 @@ def route():
     # node_start = 15307
     # node_end = 15308
     ### With start/end nodes, get optimal route
-    # route_sql = ("SELECT ST_AsGeoJSON(ST_Transform(geom, 4326)) FROM "
-    #              "pgr_dijkstra('yun_sidewalks_ready_routing',{},{},'{}')")
     pgr_sql = ("SELECT id,"
                        "source::integer,"
                        "target::integer,"
                        "{}::double precision AS cost"
-                " FROM yun_sidewalks_ready_routing").format(cost_fun)
+                " FROM {}").format(cost_fun, ROUTING_TABLE)
     route_sql = ("SELECT ST_AsGeoJSON(ST_Transform(b.geom, 4326)), cost FROM "
                  "pgr_dijkstra('{}',{},{},{},{}) a LEFT JOIN "
-                 "yun_sidewalks_ready_routing b ON (a.id2 = b.id)")
+                 "{} b ON (a.id2 = b.id)")
     route_query = route_sql.format(pgr_sql, start_node, end_node, 'false',
-                                   'false')
+                                   'false', ROUTING_TABLE)
     conn = psycopg2.connect(host=DB_HOST, dbname=DB_NAME,
                             user=DB_USER, password=DB_PASS,
                             connect_timeout=15.)
