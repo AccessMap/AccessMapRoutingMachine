@@ -25,6 +25,7 @@ def index():
 
 @app.route('/route.json', methods=['GET'])
 def route():
+    print 'test'
     #########################
     ### Process arguments ###
     #########################
