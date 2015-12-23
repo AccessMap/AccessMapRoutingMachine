@@ -32,6 +32,7 @@ def route():
     #####################
     # Process arguments #
     #####################
+    # TODO: input validation - return reasonable HTTP errors on bad input.
     # latlon (required!)
     waypoints_input = request.args.get('waypoints', None)
     if waypoints_input is None:
@@ -39,9 +40,6 @@ def route():
     waypoints_input_list = json.loads(waypoints_input)
     # Consume in pairs
     waypoints = zip(waypoints_input_list[0::2], waypoints_input_list[1::2])
-    # Separate origin and destination from intermediate waypoints
-    origin = waypoints.pop(0)
-    dest = waypoints.pop()
 
     # Default distance cost constant is 1
     kdist = request.args.get('dist', 1)
@@ -54,8 +52,8 @@ def route():
     conn = psycopg2.connect(host=DB_HOST, dbname=DB_NAME,
                             user=DB_USER, password=DB_PASS,
                             connect_timeout=15.)
-    route_response = routing_request(conn, ROUTING_TABLE,
-                                     origin, dest, kdist, kele)
+    route_response = routing_request(conn, ROUTING_TABLE, waypoints, kdist,
+                                     kele)
 
     return jsonify(route_response)
 

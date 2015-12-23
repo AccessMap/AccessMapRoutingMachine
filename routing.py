@@ -1,7 +1,7 @@
 import json
 
 
-def routing_request(conn, routing_table, origin, dest, kdist, kele):
+def routing_request(conn, routing_table, waypoints, kdist, kele):
     '''Process a routing request, returning a Mapbox-compatible routing JSON
     object.
 
@@ -19,6 +19,9 @@ def routing_request(conn, routing_table, origin, dest, kdist, kele):
     :type kele: float
 
     '''
+    # Isolate first and last points
+    origin = waypoints.pop(0)
+    dest = waypoints.pop()
     ########################################################
     ### Find sidewalks closest to origin and destination ###
     ########################################################
@@ -126,7 +129,7 @@ def routing_request(conn, routing_table, origin, dest, kdist, kele):
                                  'coordinates': [dest[1], dest[0]]},
                     'properties': {}}
     waypoints_feature_list = []
-    for waypoint in [origin, dest]:
+    for waypoint in waypoints:
         waypoint_feature = {'type': 'Feature',
                             'geometry': {'type': 'Point',
                                          'coordinates': waypoint},
