@@ -28,7 +28,6 @@ def index():
 
 @app.route('/route.json', methods=['GET'])
 def route():
-    print 'test'
     #####################
     # Process arguments #
     #####################
@@ -36,7 +35,7 @@ def route():
     # latlon (required!)
     waypoints_input = request.args.get('waypoints', None)
     if waypoints_input is None:
-        return "Bad request - waypoints parameter is required."
+        return 'Bad request - waypoints parameter is required.'
     waypoints_input_list = json.loads(waypoints_input)
     # Consume in pairs
     waypoints = zip(waypoints_input_list[0::2], waypoints_input_list[1::2])
@@ -69,4 +68,4 @@ def after_request(response):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host='0.0.0.0', debug=True)
