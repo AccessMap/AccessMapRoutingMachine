@@ -71,7 +71,9 @@ def routing_request(conn, routing_table, waypoints, kdist, kele):
     # height_cost = '{} * ABS(ele_change)'.format(kele)
     # Instead, let's do a slope cost
     slope_cost = 'CASE ST_length(geom) WHEN 0 THEN 0 ELSE {} * POW(ABS(ele_change) / ST_length(geom), 4) END'.format(kele)
-    cost_fun = ' + '.join([dist_cost, slope_cost])
+    kcrossing = 1e2
+    crossing_cost = '{} * iscrossing'.format(kcrossing)
+    cost_fun = ' + '.join([dist_cost, slope_cost, crossing_cost])
     print cost_fun
 
     ###########################################
