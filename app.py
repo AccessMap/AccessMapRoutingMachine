@@ -1,6 +1,7 @@
 from flask import Flask, json, jsonify, request
 import psycopg2
 from routing import routing_request
+from isochrone import isochrone_data
 
 app = Flask(__name__, instance_relative_config=True)
 # Get default config (main app dir config.py) or environment variables
@@ -25,6 +26,7 @@ ROUTING_TABLE = app.config['ROUTING_TABLE']
 @app.route('/')
 def index():
     return 'Hello World!'
+
 
 @app.route('/route.json', methods=['GET'])
 def route():
@@ -55,6 +57,28 @@ def route():
                                      kele)
 
     return jsonify(route_response)
+
+
+@app.route('/isochrone.json', methods=['GET'])
+def isochrone():
+    #####################
+    # Process arguments #
+    #####################
+    lon = float(request.args.get('lon'))
+    lat = float(request.args.get('lat'))
+    if lon is None or lat is None:
+        return 'Bad request - lon and lat parameters are required.'
+
+    ##########################
+    # request isochrone_data #
+    ##########################
+    conn = psycopg2.connect(host=DB_HOST, dbname=DB_NAME,
+                            user=DB_USER, password=DB_PASS,
+                            connect_timeout=15.)
+
+    data = isochrone_data(conn, [lon, lat])
+
+    return jsonify(data)
 
 
 @app.after_request
